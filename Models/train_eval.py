@@ -4,16 +4,6 @@ from copy import deepcopy
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, precision_score
 from torch.optim import Adam, AdamW, SGD
 
-def init_optimizer(optimizer_name, model, lr):
-    if optimizer_name == 'adam':
-        optimizer = Adam(model.parameters(), lr=lr)
-    elif optimizer_name == 'adamw':
-        optimizer = AdamW(model.parameters(), lr=lr)
-    elif optimizer_name == 'sgd':
-        optimizer = SGD(model.parameters(), lr=lr)
-    return optimizer
-
-
 def client_update(args, loader, model, criterion, optimizer, device, scheduler = None):
     for ep in range(args.epochs):
         train_fn(dataloader=loader, model=model, criterion=criterion, optimizer=optimizer, device=device)

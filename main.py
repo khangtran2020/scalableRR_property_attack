@@ -5,8 +5,6 @@ from config import parse_args
 from sklearn.ensemble import RandomForestClassifier
 from Utils.utils import *
 from Dataset.read_data import *
-from Models.models import init_model, Logit
-from Models.train_eval import init_optimizer
 from Runs.run_clean import run as run_clean
 
 warnings.filterwarnings("ignore")
@@ -39,15 +37,18 @@ def run(args, current_time, device):
         for i, client in enumerate(client_ids):
             client_df = read_celeba_csv_by_client_id(args=args, client_id=client, df=train_df)
             client_loader = init_loader(args=args, df=client_df, mode='train')
+            gender = int(client_df['gender'].mean())
             client_dict[client] = {
                 'client_df': client_df,
-                'client_loader': client_loader
+                'client_loader': client_loader,
+                'gender': gender
             }
 
     va_loader = init_loader(args=args, df=val_df, mode='val')
     te_loader = init_loader(args=args, df=test_df, mode='test')
     aux_loader = init_loader(args=args, df=aux_df, mode='aux')
-    attack_model = RandomForestClassifier(max_depth=2, random_state=args.seed)
+    attack_model = RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,
+                                          min_samples_split=5, random_state=args.seed)
     eval_data = (va_loader, te_loader)
     attack_info = (aux_loader, attack_model)
 

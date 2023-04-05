@@ -9,7 +9,7 @@ from Dataset.dataset import CelebA
 
 def read_celeba_csv_by_client_id(args, client_id, df):
     client_df = df[df['client_id'] == client_id].copy().reset_index(drop=True)
-    client_df = client_df[['image_id', args.target, args.att]]
+    client_df = client_df[['image_id', 'gender', args.target, args.att]]
     return client_df
 
 

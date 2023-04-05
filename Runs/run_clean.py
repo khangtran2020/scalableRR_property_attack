@@ -1,7 +1,7 @@
 import torch
 from tqdm import tqdm
 from Models.train_eval import *
-from Models.models import init_model
+from Models.models import init_model, init_optimizer
 from Utils.utils import save_res, timeit
 
 
@@ -28,15 +28,16 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
     global_model.to(device)
     es = EarlyStopping(patience=args.patience, verbose=False)
 
-
     for round in range(args.rounds):
         with timeit(logger=logger, task=f'train-round-{round}'):
+            local_info = {} if (round > 0) and (round % args.attack_round == 0) else None
             chosen_clients = np.random.choice(client_ids, args.client_bs, replace=False).tolist()
             local_update = None
             for i, client in enumerate(chosen_clients):
                 client_loader = client_dict[client]['client_loader']
                 model = deepcopy(global_model)
-                optimizer = init_optimizer(optimizer_name=args.optimizer, model=model, lr=args.lr)
+                optimizer = init_optimizer(optimizer_name=args.optimizer, model=model,
+                                           lr=args.lr, weight_decay=args.weight_decay)
                 client_model_dict = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
                                                   optimizer=optimizer, device=device)
                 local_update = deepcopy(client_model_dict) if i == 0 else FedAvg(local_update, client_model_dict)
@@ -70,7 +71,8 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
             # build attack model
             with timeit(logger=logger, task='create-grad-one-step'):
                 grad_ls, tar_att = get_grad(args=args, loader=aux_loader, model=global_model, device=device)
-                print(grad_ls.shape, tar_att.shape)
+            with timeit(logger=logger, task='attack-training'):
+                attack_model.fit(grad_ls, tar_att)
             break
 
     save_res(name=name, args=args, dct=history)
