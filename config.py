@@ -24,8 +24,8 @@ def add_data_group(group):
 
 def add_model_group(group):
     group.add_argument("--model_type", type=str, default='lr', help="Model type")
-    group.add_argument("--lr", type=float, default=0.001, help="learning rate")
-    group.add_argument("--weight_decay", type=float, default=0.1, help="weight decay SGD")
+    group.add_argument("--lr", type=float, default=0.1, help="learning rate")
+    group.add_argument("--weight_decay", type=float, default=0.9, help="weight decay SGD")
     group.add_argument('--batch_size', type=int, default=4, help="batch size for training process")
     group.add_argument('--client_bs', type=int, default=32, help="# clients per round")
     group.add_argument('--n_hid', type=int, default=2, help='number hidden layer')
@@ -33,7 +33,7 @@ def add_model_group(group):
     group.add_argument("--optimizer", type=str, default='sgd')
     group.add_argument("--dropout", type=float, default=0.2)
     group.add_argument("--patience", type=int, default=20)
-    group.add_argument("--epochs", type=int, default=10, help='# of training step')
+    group.add_argument("--epochs", type=int, default=1, help='# of training step')
     group.add_argument("--rounds", type=int, default=100, help='# of FL rounds')
     group.add_argument("--adv_model_type", type=str, default='rf', help='type of attack model')
     group.add_argument("--eval_round", type=int, default=10, help='evaluate after this number of round')

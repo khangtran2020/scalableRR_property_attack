@@ -37,11 +37,11 @@ def run(args, current_time, device):
         for i, client in enumerate(client_ids):
             client_df = read_celeba_csv_by_client_id(args=args, client_id=client, df=train_df)
             client_loader = init_loader(args=args, df=client_df, mode='train')
-            gender = int(client_df['gender'].mean())
+            att = int(client_df['gender'].mean())
             client_dict[client] = {
                 'client_df': client_df,
                 'client_loader': client_loader,
-                'gender': gender
+                'att': att
             }
 
     va_loader = init_loader(args=args, df=val_df, mode='val')

@@ -33,25 +33,25 @@ def eval_fn(data_loader, model, criterion, device):
     fin_targets = []
     fin_outputs = []
     loss = 0
-    # num_data_point = 0
+    num_data_point = 0
     model.eval()
     with torch.no_grad():
         for bi, d in enumerate(data_loader):
             features, _, target = d
             features = features.to(device, dtype=torch.float)
             target = torch.squeeze(target).to(device, dtype=torch.float)
-            # num_data_point += features.size(dim=0)
+            num_data_point += features.size(dim=0)
             outputs = model(features)
             # if outputs.size(dim=0) > 1:
             outputs = torch.squeeze(outputs, dim=-1)
             loss_eval = criterion(outputs, target)
-            loss += loss_eval.item()
+            loss += loss_eval.item()*features.size(dim=0)
             outputs = outputs.cpu().detach().numpy()
 
             fin_targets.extend(target.cpu().detach().numpy().astype(int).tolist())
             fin_outputs.extend(outputs)
 
-    return loss, fin_outputs, fin_targets
+    return loss/num_data_point, fin_outputs, fin_targets
 
 def performace_eval(args, y_true, y_pred):
     if args.performance_metric == 'acc':
@@ -115,6 +115,13 @@ def get_grad_vec(model):
     grad_vec = []
     for name, layer in model.named_parameters():
         layer_grad = (layer.grad).view(-1).tolist()
+        grad_vec.extend(layer_grad)
+    return grad_vec
+
+def get_client_grad(glob_dict, loc_dict):
+    grad_vec = []
+    for key in glob_dict.keys():
+        layer_grad = (loc_dict[key] - glob_dict[key]).view(-1).tolist()
         grad_vec.extend(layer_grad)
     return grad_vec
 
