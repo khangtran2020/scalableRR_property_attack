@@ -39,7 +39,7 @@ def init_loader(args, df, mode='train'):
 
 def build_aux(args, df):
     # divided half-half for train and aux
-    temp = df.groupby('client_id').count().sort_values(by=['image_id'], ascending=False).cumsum()
+    temp = df.groupby('client_id').count().sample(frac=1, random_state=args.seed).cumsum()
     tr_client_id = list(temp[temp['image_id'] <= 81385].index)
     aux_client_id = list(temp[temp['image_id'] > 81385].index)
     tr_df = df[df['client_id'].isin(tr_client_id)].copy().reset_index(drop=True)
