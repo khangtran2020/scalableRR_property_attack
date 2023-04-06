@@ -52,5 +52,5 @@ def init_optimizer(optimizer_name, model, lr, weight_decay):
     elif optimizer_name == 'adamw':
         optimizer = AdamW(model.parameters(), lr=lr)
     elif optimizer_name == 'sgd':
-        optimizer = SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
+        optimizer = SGD(model.parameters(), lr=lr, weight_decay=weight_decay, momentum=0.9)
     return optimizer
