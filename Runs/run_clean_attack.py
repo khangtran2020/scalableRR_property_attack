@@ -45,7 +45,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
             model = deepcopy(global_model)
             optimizer = init_optimizer(optimizer_name=args.optimizer, model=model,
                                        lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
-            client_model_dict = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
+            client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
                                               optimizer=optimizer, device=device)
             if (round > 0) and (round % args.attack_round == 0):
                 local_grad.append(get_client_grad(glob_dict=glob_dict, loc_dict=client_model_dict))
