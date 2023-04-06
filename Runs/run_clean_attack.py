@@ -47,7 +47,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
                                        lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
             client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
                                               optimizer=optimizer, device=device)
-            print(f'For client {client}: {client_loss}')
+            # print(f'For client {client}: {client_loss}')
             if (round > 0) and (round % args.attack_round == 0):
                 local_grad.append(get_client_grad(glob_dict=glob_dict, loc_dict=client_model_dict))
             local_update = deepcopy(client_model_dict) if i == 0 else FedAvg(local_update, client_model_dict)
