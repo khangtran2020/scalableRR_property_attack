@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from Utils.utils import *
 from Dataset.read_data import *
 from Runs.run_clean import run as run_clean
+from Runs.run_clean_attack import run as run_clean_attack
 
 warnings.filterwarnings("ignore")
 logging.basicConfig(format='%(asctime)s | %(levelname)s | %(name)s | %(message)s')
@@ -47,16 +48,21 @@ def run(args, current_time, device):
 
     va_loader = init_loader(args=args, df=val_df, mode='val')
     te_loader = init_loader(args=args, df=test_df, mode='test')
-    aux_loader = init_loader(args=args, df=aux_df, mode='aux')
-    attack_model = RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,
-                                          min_samples_split=5, random_state=args.seed)
+    if args.submode == 'attack':
+        aux_loader = init_loader(args=args, df=aux_df, mode='aux')
+        attack_model = RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,
+                                              min_samples_split=5, random_state=args.seed)
+        attack_info = (aux_loader, attack_model)
     eval_data = (va_loader, te_loader)
-    attack_info = (aux_loader, attack_model)
 
     # run experiments
     if args.mode == 'clean':
-        run_clean(args=args, client_dict=client_dict, client_ids=client_ids, name=name,
-                  device=device, eval_data=eval_data, attack_info=attack_info, logger=logger)
+        if args.submode == 'clean':
+            run_clean(args=args, client_dict=client_dict, client_ids=client_ids, name=name,
+                      device=device, eval_data=eval_data, logger=logger)
+        else:
+            run_clean_attack(args=args, client_dict=client_dict, client_ids=client_ids, name=name,
+                             device=device, eval_data=eval_data, attack_info=attack_info, logger=logger)
 
 
 if __name__ == "__main__":
