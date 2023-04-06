@@ -5,14 +5,17 @@ from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, precision_s
 from torch.optim import Adam, AdamW, SGD
 
 def client_update(args, loader, model, criterion, optimizer, device, scheduler = None):
+    client_loss = []
     for ep in range(args.epochs):
-        train_fn(dataloader=loader, model=model, criterion=criterion, optimizer=optimizer, device=device)
-    return model.state_dict()
+        loss = train_fn(dataloader=loader, model=model, criterion=criterion, optimizer=optimizer, device=device)
+        client_loss.append(loss)
+    return model.state_dict(), client_loss
 
 def train_fn(dataloader, model, criterion, optimizer, device, scheduler = None):
     model.to(device)
     model.train()
-
+    train_loss = 0.0
+    num_pt = 0
     for bi, d in enumerate(dataloader):
         # img_tensor, protected_att, target
         features, _, target = d
@@ -22,11 +25,14 @@ def train_fn(dataloader, model, criterion, optimizer, device, scheduler = None):
         output = model(features)
         output = torch.squeeze(output)
         loss = criterion(output, target)
+        num_pt += features.size(dim=0)
+        train_loss += loss.item()*features.size(dim=0)
         loss.backward()
         optimizer.step()
 
         if scheduler is not None:
             scheduler.step()
+    return train_loss/num_pt
 
 def eval_fn(data_loader, model, criterion, device):
     model.to(device)
