@@ -14,6 +14,7 @@ logger.setLevel(logging.INFO)
 
 
 def run(args, current_time, device):
+    print(f'Running on {device}')
     name = get_name(args=args, current_date=current_time)
     args.num_feat = 512 if args.data_type == 'embedding' else (64, 64)
     args.num_class = 2
