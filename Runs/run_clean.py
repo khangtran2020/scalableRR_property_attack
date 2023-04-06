@@ -41,6 +41,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, logger):
                                        lr=args.lr, weight_decay=args.weight_decay)
             client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
                                               optimizer=optimizer, device=device)
+            print(f'For client {client}: {client_loss}')
             local_update = deepcopy(client_model_dict) if i == 0 else FedAvg(local_update, client_model_dict)
 
         w_glob = deepcopy(local_update)
