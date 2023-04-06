@@ -29,11 +29,14 @@ def init_loader(args, df, mode='train'):
     dataset = CelebA(client_df=df, mode=args.mode, data_type=args.data_type, transform=transform, data_path=file_path,
                      z=args.att, y=args.target)
     if mode == 'train':
-        loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
+        bz = min(len(dataset), args.batch_size)
+        loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=True)
     elif mode == 'aux':
-        loader = DataLoader(dataset, batch_size=args.aux_bs, shuffle=True, drop_last=True)
+        bz = min(len(dataset), args.aux_bs)
+        loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=True)
     else:
-        loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, drop_last=False)
+        bz = min(len(dataset), args.batch_size)
+        loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=False)
     return loader
 
 

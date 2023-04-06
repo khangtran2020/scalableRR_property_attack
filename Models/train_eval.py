@@ -19,13 +19,13 @@ def train_fn(dataloader, model, criterion, optimizer, device, scheduler = None):
     for bi, d in enumerate(dataloader):
         # img_tensor, protected_att, target
         features, _, target = d
+        num_pt += features.size(dim=0)
         features = features.to(device, dtype=torch.float)
-        target = torch.squeeze(target).to(device, dtype=torch.float)
+        target = torch.squeeze(target, dim=-1).to(device, dtype=torch.float)
         optimizer.zero_grad()
         output = model(features)
-        output = torch.squeeze(output)
+        output = torch.squeeze(output, dim=-1)
         loss = criterion(output, target)
-        num_pt += features.size(dim=0)
         train_loss += loss.item()*features.size(dim=0)
         loss.backward()
         optimizer.step()
@@ -45,7 +45,7 @@ def eval_fn(data_loader, model, criterion, device):
         for bi, d in enumerate(data_loader):
             features, _, target = d
             features = features.to(device, dtype=torch.float)
-            target = torch.squeeze(target).to(device, dtype=torch.float)
+            target = torch.squeeze(target, dim=-1).to(device, dtype=torch.float)
             num_data_point += features.size(dim=0)
             outputs = model(features)
             # if outputs.size(dim=0) > 1:
