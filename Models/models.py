@@ -46,11 +46,11 @@ def init_model(args, model_type):
         model = Logit(input_dim=args.num_feat, output_dim=num_classs)
     return model
 
-def init_optimizer(optimizer_name, model, lr, weight_decay):
+def init_optimizer(optimizer_name, model, lr, weight_decay, momentum):
     if optimizer_name == 'adam':
         optimizer = Adam(model.parameters(), lr=lr)
     elif optimizer_name == 'adamw':
         optimizer = AdamW(model.parameters(), lr=lr)
     elif optimizer_name == 'sgd':
-        optimizer = SGD(model.parameters(), lr=lr, weight_decay=weight_decay, momentum=0.9)
+        optimizer = SGD(model.parameters(), lr=lr, weight_decay=weight_decay, momentum=momentum)
     return optimizer

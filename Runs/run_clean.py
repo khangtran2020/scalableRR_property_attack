@@ -38,7 +38,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, logger):
             client_loader = client_dict[client]['client_loader']
             model = deepcopy(global_model)
             optimizer = init_optimizer(optimizer_name=args.optimizer, model=model,
-                                       lr=args.lr, weight_decay=args.weight_decay)
+                                       lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
             client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
                                               optimizer=optimizer, device=device)
             print(f'For client {client}: {client_loss}')
