@@ -1,3 +1,4 @@
+import gc
 import torch
 from tqdm import tqdm
 from Models.train_eval import *
@@ -76,6 +77,9 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
             # build attack model
             grad_ls, tar_att = get_grad(args=args, loader=aux_loader, model=global_model, device=device)
             attack_model.fit(grad_ls, tar_att)
+            del(grad_ls)
+            del(tar_att)
+            gc.collect()
 
         if (round > 0) and (round % args.attack_round == 0):
             local_grad = np.array(local_grad)
