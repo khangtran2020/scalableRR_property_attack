@@ -89,7 +89,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
             print(local_grad.shape, local_attr.shape, np.sum(local_attr))
             pred = attack_model.predict_proba(local_grad)[:, 1]
             attack_perf = roc_auc_score(y_true=local_attr, y_score=pred)
-            print(f'Rounds {round}: attack acc = {attack_perf}')
+            print(f'Rounds {round}: attack auc = {attack_perf}')
             history['attack_round'].append(round)
             history['attack_auc'].append(attack_perf)
 
