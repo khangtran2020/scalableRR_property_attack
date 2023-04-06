@@ -18,7 +18,9 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
         'test_history_loss': [],
         'test_history_acc': [],
         'val_history_loss': [],
-        'val_history_acc': []
+        'val_history_acc': [],
+        'attack_round': [],
+        'attack_auc': []
     }
 
     va_loader, te_loader = eval_data
@@ -88,5 +90,7 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
             pred = attack_model.predict_proba(local_grad)[:, 1]
             attack_perf = roc_auc_score(y_true=local_attr, y_score=pred)
             print(f'Rounds {round}: attack acc = {attack_perf}')
+            history['attack_round'].append(round)
+            history['attack_auc'].append(attack_perf)
 
     save_res(name=name, args=args, dct=history)
