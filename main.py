@@ -28,7 +28,8 @@ def run(args, current_time, device):
         test_df = pd.read_csv(args.data_path + 'test.csv')
 
         # build aux data
-        train_df, aux_df = build_aux(args=args, df=train_df)
+        if args.submode == 'attack':
+            train_df, aux_df = build_aux(args=args, df=train_df)
 
     # build client dictionary
     with timeit(logger, 'create-client-dict'):
