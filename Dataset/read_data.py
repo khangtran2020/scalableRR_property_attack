@@ -45,7 +45,7 @@ def build_aux(args, df):
     if args.aux_type == 'random':
         temp = df.groupby('client_id').count().sample(frac=1, random_state=args.seed).cumsum()
     elif args.aux_type == 'sort':
-        temp = df.groupby('client_id').count().sort_value(by='image_id', ascending=False).cumsum()
+        temp = df.groupby('client_id').count().sort_values(by='image_id', ascending=False).cumsum()
     else:
         temp = None
     tr_client_id = list(temp[temp['image_id'] <= 81385].index)
