@@ -25,9 +25,9 @@ def seed_everything(seed):
 
 
 def get_name(args, current_date):
-    dataset_str = f'{args.dataset}_{args.ratio}_num_client_{args.num_client}'
+    dataset_str = f'{args.dataset}_{args.ratio}_num_client_{args.num_client}_'
     date_str = f'{current_date.day}-{current_date.month}-{current_date.year}_{current_date.hour}-{current_date.minute}-{current_date.second}'
-    model_str = f'{args.mode}_{args.submode}_FL_rounds_{args.rounds}_internal_epochs_{args.epochs}_{args.performance_metric}_{args.optimizer}_'
+    model_str = f'{args.mode}_{args.submode}_FL_rounds_{args.rounds}_internal_epochs_{args.epochs}_{args.performance_metric}_{args.optimizer}_lr_{args.lr}_{args.model_type}'
     dp_str = f'{args.tar_eps}_num_bit_{args.num_bit}_num_int_{args.num_int}_'
     if args.mode == 'clean':
         res_str = dataset_str + model_str + date_str
