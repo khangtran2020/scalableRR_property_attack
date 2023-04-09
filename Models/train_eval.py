@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from copy import deepcopy
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, precision_score
-from torch.optim import Adam, AdamW, SGD
 
 def client_update(args, loader, model, criterion, optimizer, device, scheduler = None):
     client_loss = []
@@ -124,10 +123,10 @@ def get_grad_vec(model):
         grad_vec.extend(layer_grad)
     return grad_vec
 
-def get_client_grad(glob_dict, loc_dict):
+def get_client_grad(glob_dict, loc_dict, lr):
     grad_vec = []
     for key in glob_dict.keys():
-        layer_grad = (loc_dict[key] - glob_dict[key]).view(-1).tolist()
+        layer_grad = ((glob_dict[key] - loc_dict[key])/lr).view(-1).tolist()
         grad_vec.extend(layer_grad)
     return grad_vec
 
@@ -181,4 +180,3 @@ class EarlyStopping:
             else:
                 torch.save(model, model_path)
         self.val_score = epoch_score
-

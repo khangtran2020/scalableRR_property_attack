@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 from torch import nn
+from sklearn.ensemble import RandomForestClassifier
 from torch.optim import Adam, AdamW, SGD
 
 class NeuralNetwork(nn.Module):
@@ -37,13 +38,19 @@ class Logit(nn.Module):
 def init_model(args, model_type):
     if model_type == 'normal':
         num_classs = 1 if args.num_class <= 2 else args.num_class
+        if args.model_type == 'nn':
+            model = NeuralNetwork(input_dim=args.num_feat, hidden_dim=args.hid_dim, output_dim=num_classs,
+                                  n_layers=args.n_hid)
+        elif args.model_type == 'lr':
+            model = Logit(input_dim=args.num_feat, output_dim=num_classs)
     else:
         num_classs = 1 if args.num_att <= 2 else args.num_att
-    model = None
-    if args.model_type == 'nn':
-        model = NeuralNetwork(input_dim=args.num_feat, hidden_dim=args.hid_dim, output_dim=num_classs, n_layers=args.n_hid)
-    elif args.model_type == 'lr':
-        model = Logit(input_dim=args.num_feat, output_dim=num_classs)
+        if args.model_type == 'nn':
+            model = NeuralNetwork(input_dim=args.num_params, hidden_dim=args.hid_dim, output_dim=num_classs,
+                                  n_layers=args.n_hid)
+        elif args.model_type == 'lr':
+            model = Logit(input_dim=args.num_params, output_dim=num_classs)
+
     return model
 
 def init_optimizer(optimizer_name, model, lr, weight_decay, momentum):
@@ -54,3 +61,10 @@ def init_optimizer(optimizer_name, model, lr, weight_decay, momentum):
     elif optimizer_name == 'sgd':
         optimizer = SGD(model.parameters(), lr=lr, weight_decay=weight_decay, momentum=momentum)
     return optimizer
+
+def build_attack_model(args, num_params, num_class):
+    if args.attack_model == 'rf':
+        return RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,
+                               min_samples_split=5, random_state=args.seed)
+    else:
+        return init_model(args=args, model_type='attack')

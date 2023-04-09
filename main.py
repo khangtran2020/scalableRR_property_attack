@@ -30,6 +30,11 @@ def run(args, current_time, device):
         # build aux data
         if args.submode == 'attack':
             train_df, aux_df = build_aux(args=args, df=train_df)
+        else:
+            temp = train_df.groupby('client_id').count()
+            client_idx = list(temp[temp['image_id'] >= 10].index)
+            train_df = train_df[train_df['client_id'].isin(client_idx)].copy().reset_index(drop=True)
+
 
     # build client dictionary
     with timeit(logger, 'create-client-dict'):
