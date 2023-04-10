@@ -32,9 +32,10 @@ def run(args, current_time, device):
             train_df, aux_df = build_aux(args=args, df=train_df)
         else:
             temp = train_df.groupby('client_id').count()
-            client_idx = list(temp[temp['image_id'] >= 10].index)
+            client_idx = list(temp[temp['image_id'] >= args.client_lb].index)
+            args.client_bs = len(client_idx)
             train_df = train_df[train_df['client_id'].isin(client_idx)].copy().reset_index(drop=True)
-    print(f'Training with {len(train_df["client_id"].unique())} users')
+    print(f'Training with {len(train_df["client_id"].unique())} users and each batch has {args.client_bs} clients')
 
     # build client dictionary
     with timeit(logger, 'create-client-dict'):

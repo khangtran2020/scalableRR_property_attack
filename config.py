@@ -19,6 +19,7 @@ def add_data_group(group):
     group.add_argument('--target', type=str, default='Eyeglasses', help="label")
     group.add_argument('--ratio', type=float, default=0.2, help="train/test split ratio")
     group.add_argument("--num_client", type=int, default=2, help="# of clients")
+    group.add_argument("--client_lb", type=int, default=10, help="# of images per client")
     group.add_argument("--aux_data_size", type=str, default='med', help="Size of auxiliary dataset")
     group.add_argument("--aux_type", type=str, default='sort', help="Type to divide the train data")
 
