@@ -30,13 +30,12 @@ def run(args, client_dict, client_ids, name, device, eval_data, attack_info, log
     global_model = init_model(args=args, model_type='normal')
     global_model.to(device)
     es = EarlyStopping(patience=args.patience, verbose=False)
-
+    chosen_clients = client_ids
     for round in tqdm(range(args.rounds)):
         glob_dict = global_model.state_dict()
         if (round > 0) and (round % args.attack_round == 0):
             local_grad = []
             local_attr = []
-        chosen_clients = np.random.choice(client_ids, args.client_bs, replace=False).tolist()
         local_update = None
         for i, client in enumerate(chosen_clients):
             if (round > 0) and (round % args.attack_round == 0):
