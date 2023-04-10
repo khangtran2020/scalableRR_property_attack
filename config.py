@@ -37,6 +37,7 @@ def add_model_group(group):
     group.add_argument("--dropout", type=float, default=0.2)
     group.add_argument("--patience", type=int, default=20)
     group.add_argument("--epochs", type=int, default=1, help='# of training step')
+    group.add_argument("--num_worker", type=int, default=4, help='# of workers for parallel')
     group.add_argument("--rounds", type=int, default=100, help='# of FL rounds')
     group.add_argument("--adv_model_type", type=str, default='rf', help='type of attack model')
     group.add_argument("--eval_round", type=int, default=10, help='evaluate after this number of round')

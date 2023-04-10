@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from copy import deepcopy
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, precision_score
+from Models.models import init_optimizer
 
 def client_update(args, loader, model, criterion, optimizer, device, scheduler = None):
     client_loss = []
@@ -133,6 +134,15 @@ def get_client_grad(glob_dict, loc_dict, lr):
         layer_grad = ((glob_dict[key] - loc_dict[key])/lr).view(-1).tolist()
         grad_vec.extend(layer_grad)
     return grad_vec
+
+def one_client_update(args, client, client_dict, global_model, criterion, device):
+    client_loader = client_dict[client]['client_loader']
+    model = deepcopy(global_model)
+    optimizer = init_optimizer(optimizer_name=args.optimizer, model=model,
+                               lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
+    client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
+                                                   optimizer=optimizer, device=device)
+    return client_model_dict
 
 class EarlyStopping:
     def __init__(self, patience=7, mode="max", delta=0.001, verbose=False, run_mode=None, skip_ep=100):

@@ -1,5 +1,6 @@
 import gc
 import torch
+import multiprocessing
 from tqdm import tqdm
 from Models.train_eval import *
 from Models.models import init_model, init_optimizer
@@ -33,15 +34,13 @@ def run(args, client_dict, client_ids, name, device, eval_data, logger):
         if (round > 0) and (round % args.attack_round == 0):
             local_grad = []
             local_attr = []
-        chosen_clients = np.random.choice(client_ids, args.client_bs, replace=False).tolist()
-        for i, client in enumerate(chosen_clients):
-            client_loader = client_dict[client]['client_loader']
-            model = deepcopy(global_model)
-            optimizer = init_optimizer(optimizer_name=args.optimizer, model=model,
-                                       lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum)
-            client_model_dict, client_loss = client_update(args=args, loader=client_loader, model=model, criterion=criterion,
-                                              optimizer=optimizer, device=device)
-            # print(f'For client {client}: {client_loss}')
+        # chosen_clients = np.random.choice(client_ids, args.client_bs, replace=False).tolist()
+        chosen_clients = client_ids
+        pool = multiprocessing.Pool(args.num_worker)
+        # args, client, client_dict, global_model, criterion, device
+        processes = [pool.apply_async(one_client_update, args=(args, client, client_dict, global_model, criterion, device)) for client in chosen_clients]
+        result = [p.get() for p in processes]
+        for i, client_model_dict in enumerate(result):
             local_update = deepcopy(client_model_dict) if i == 0 else FedAvg(local_update, client_model_dict)
 
         w_glob = deepcopy(local_update)
