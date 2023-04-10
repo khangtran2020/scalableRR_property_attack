@@ -35,7 +35,7 @@ def init_loader(args, df, mode='train'):
         bz = min(len(dataset), args.aux_bs)
         loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=True)
     else:
-        bz = min(len(dataset), args.batch_size)
+        bz = min(len(dataset), args.batch_size_val)
         loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=False)
     return loader
 

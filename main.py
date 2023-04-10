@@ -30,6 +30,7 @@ def run(args, current_time, device):
         # build aux data
         if args.submode == 'attack':
             train_df, aux_df = build_aux(args=args, df=train_df)
+            args.client_bs = len(list(train_df.groupby('client_id').count().index))
         else:
             temp = train_df.groupby('client_id').count()
             client_idx = list(temp[temp['image_id'] >= args.client_lb].index)

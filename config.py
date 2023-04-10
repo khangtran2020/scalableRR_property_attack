@@ -29,6 +29,7 @@ def add_model_group(group):
     group.add_argument("--weight_decay", type=float, default=0.9, help="weight decay SGD")
     group.add_argument("--momentum", type=float, default=0.9, help="momentum SGD")
     group.add_argument('--batch_size', type=int, default=10, help="batch size for training process")
+    group.add_argument('--batch_size_val', type=int, default=256, help="batch size for training process")
     group.add_argument('--client_bs', type=int, default=32, help="# clients per round")
     group.add_argument('--n_hid', type=int, default=2, help='number hidden layer')
     group.add_argument('--hid_dim', type=int, default=32, help='hidden embedding dim')
