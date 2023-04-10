@@ -34,7 +34,7 @@ def run(args, current_time, device):
             temp = train_df.groupby('client_id').count()
             client_idx = list(temp[temp['image_id'] >= 10].index)
             train_df = train_df[train_df['client_id'].isin(client_idx)].copy().reset_index(drop=True)
-    print(f'Training with {train_df["client_id"].unique()} users')
+    print(f'Training with {len(train_df["client_id"].unique())} users')
 
     # build client dictionary
     with timeit(logger, 'create-client-dict'):
