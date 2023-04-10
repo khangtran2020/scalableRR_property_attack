@@ -13,31 +13,32 @@ def client_update(args, loader, model, criterion, optimizer, device, scheduler =
 def train_fn(dataloader, model, criterion, optimizer, device, scheduler = None):
     model.to(device)
     model.train()
-    train_loss = 0.0
+    train_loss = torch.Tensor([0]).to(device)
     num_pt = 0
     for bi, d in enumerate(dataloader):
         # img_tensor, protected_att, target
+        optimizer.zero_grad()
+        model.zero_grad()
         features, _, target = d
         num_pt += features.size(dim=0)
         features = features.to(device, dtype=torch.float)
         target = torch.squeeze(target, dim=-1).to(device, dtype=torch.float)
-        optimizer.zero_grad()
         output = model(features)
         output = torch.squeeze(output, dim=-1)
         loss = criterion(output, target)
-        train_loss += loss.item()*features.size(dim=0)
         loss.backward()
         optimizer.step()
+        train_loss = train_loss + loss * features.size(dim=0)
 
         if scheduler is not None:
             scheduler.step()
-    return train_loss/num_pt
+    return train_loss.item()/num_pt
 
 def eval_fn(data_loader, model, criterion, device):
     model.to(device)
-    fin_targets = []
-    fin_outputs = []
-    loss = 0
+    # fin_targets = []
+    # fin_outputs = []
+    loss = torch.Tensor([0]).to(device)
     num_data_point = 0
     model.eval()
     with torch.no_grad():
@@ -50,13 +51,16 @@ def eval_fn(data_loader, model, criterion, device):
             # if outputs.size(dim=0) > 1:
             outputs = torch.squeeze(outputs, dim=-1)
             loss_eval = criterion(outputs, target)
-            loss += loss_eval.item()*features.size(dim=0)
-            outputs = outputs.cpu().detach().numpy()
-
-            fin_targets.extend(target.cpu().detach().numpy().astype(int).tolist())
-            fin_outputs.extend(outputs)
-
-    return loss/num_data_point, fin_outputs, fin_targets
+            if bi == 0:
+                fin_targets = deepcopy(target)
+                fin_outputs = deepcopy(outputs)
+            else:
+                fin_targets = torch.cat((fin_targets, target), dim=0)
+                fin_outputs = torch.cat((fin_outputs, outputs), dim=0)
+            loss = loss + loss_eval.item() * features.size(dim=0)
+        fin_outputs = fin_outputs.cpu().detach().numpy().tolist()
+        fin_targets = fin_targets.cpu().detach().numpy().astype(int).tolist()
+    return loss.item()/num_data_point, fin_outputs, fin_targets
 
 def performace_eval(args, y_true, y_pred):
     if args.performance_metric == 'acc':
