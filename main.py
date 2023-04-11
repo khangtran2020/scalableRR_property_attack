@@ -21,6 +21,9 @@ def run(args, current_time, device):
     args.num_class = 2
     args.num_att = 2
 
+    if args.mode == 'dp':
+        feature_matrix = np.load(f'Data/CelebA/celebA_rn18_m5_n4_eps_{args.tar_eps}.npz')['emb_all']
+
     with timeit(logger, 'init-data'):
         # read data
         train_df = pd.read_csv(args.data_path + 'train.csv')
@@ -46,7 +49,12 @@ def run(args, current_time, device):
         client_ids = train_df['client_id'].unique().tolist()
         for i, client in enumerate(client_ids):
             client_df = read_celeba_csv_by_client_id(args=args, client_id=client, df=train_df)
-            client_loader = init_loader(args=args, df=client_df, mode='train')
+            if args.mode == 'dp':
+                client_id = client_df['image_name'].values.astype(int).tolist()
+                client_matrix = feature_matrix[client_id]
+                client_loader = init_loader(args=args, df=client_df, feat_matrix=client_matrix, mode='train')
+            else:
+                client_loader = init_loader(args=args, df=client_df, feat_matrix=None, mode='train')
             att = int(client_df['gender'].mean())
             client_dict[client] = {
                 'client_df': client_df,
@@ -54,8 +62,8 @@ def run(args, current_time, device):
                 'att': att
             }
 
-    va_loader = init_loader(args=args, df=val_df, mode='val')
-    te_loader = init_loader(args=args, df=test_df, mode='test')
+    va_loader = init_loader(args=args, df=val_df, mode='val', feat_matrix=None)
+    te_loader = init_loader(args=args, df=test_df, mode='test', feat_matrix=None)
     if args.submode == 'attack':
         aux_loader = init_loader(args=args, df=aux_df, mode='aux')
         attack_model = RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,

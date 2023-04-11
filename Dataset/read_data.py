@@ -9,11 +9,14 @@ from Dataset.dataset import CelebA
 
 def read_celeba_csv_by_client_id(args, client_id, df):
     client_df = df[df['client_id'] == client_id].copy().reset_index(drop=True)
-    client_df = client_df[['image_id', 'gender', args.target, args.att]]
+    if args.mode == 'clean':
+        client_df = client_df[['image_id', 'gender', args.target, args.att]]
+    else:
+        client_df = client_df[['image_id', 'gender', 'image_name', args.target, args.att]]
     return client_df
 
 
-def init_loader(args, df, mode='train'):
+def init_loader(args, df, feat_matrix, mode='train'):
     if args.data_type == 'image':
         transform = transforms.Compose([
             transforms.PILToTensor(),
@@ -26,15 +29,19 @@ def init_loader(args, df, mode='train'):
     else:
         transform = None
         file_path = 'Data/embeddings/'
-    dataset = CelebA(client_df=df, mode=args.mode, data_type=args.data_type, transform=transform, data_path=file_path,
-                     z=args.att, y=args.target)
     if mode == 'train':
+        dataset = CelebA(client_df=df, mode=args.mode, data_type=args.data_type, transform=transform, data_path=file_path,
+                         z=args.att, y=args.target, feat_matrix=feat_matrix, dataset_type='train')
         bz = min(len(dataset), args.batch_size)
         loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=True)
     elif mode == 'aux':
+        dataset = CelebA(client_df=df, mode=args.mode, data_type=args.data_type, transform=transform,
+                         data_path=file_path, z=args.att, y=args.target, feat_matrix=None, dataset_type='aux')
         bz = min(len(dataset), args.aux_bs)
         loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=True)
     else:
+        dataset = CelebA(client_df=df, mode=args.mode, data_type=args.data_type, transform=transform,
+                         data_path=file_path, z=args.att, y=args.target, feat_matrix=None, dataset_type='val/test')
         bz = min(len(dataset), args.batch_size_val)
         loader = DataLoader(dataset, batch_size=bz, shuffle=True, drop_last=False)
     return loader
