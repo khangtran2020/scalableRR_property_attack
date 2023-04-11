@@ -65,7 +65,7 @@ def run(args, current_time, device):
     va_loader = init_loader(args=args, df=val_df, mode='val', feat_matrix=None)
     te_loader = init_loader(args=args, df=test_df, mode='test', feat_matrix=None)
     if args.submode == 'attack':
-        aux_loader = init_loader(args=args, df=aux_df, mode='aux')
+        aux_loader = init_loader(args=args, df=aux_df, mode='aux', feat_matrix=None)
         attack_model = RandomForestClassifier(n_estimators=100, n_jobs=5, min_samples_leaf=5,
                                               min_samples_split=5, random_state=args.seed)
         attack_info = (aux_loader, attack_model)
