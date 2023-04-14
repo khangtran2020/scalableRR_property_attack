@@ -22,7 +22,9 @@ def run(args, current_time, device):
     args.num_att = 2
 
     if args.mode == 'dp':
-        feature_matrix = np.load(f'Data/CelebA/celebA_rn18_m5_n4_eps_{args.tar_eps}.npz')['emb_all']
+        feature_matrix = np.load(f'Data/CelebA/celebA_eps_{args.tar_eps}.npz')['emb_all']
+    elif args.mode == 'relax':
+        feature_matrix = np.load(f'Data/CelebA/celebA_eps_{args.tar_eps}_relaxed.npz')['emb_all']
 
     with timeit(logger, 'init-data'):
         # read data
@@ -49,7 +51,7 @@ def run(args, current_time, device):
         client_ids = train_df['client_id'].unique().tolist()
         for i, client in enumerate(client_ids):
             client_df = read_celeba_csv_by_client_id(args=args, client_id=client, df=train_df)
-            if args.mode == 'dp':
+            if args.mode in ['dp', 'relax']:
                 client_id = client_df['image_name'].values.astype(int).tolist()
                 client_matrix = feature_matrix[client_id]
                 client_loader = init_loader(args=args, df=client_df, feat_matrix=client_matrix, mode='train')
